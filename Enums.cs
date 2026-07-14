@@ -1,2 +1,2 @@
 enum LocationType {Warehouse, Store}
-enum MovementType {Trasnfer, Adjustment}
+enum MovementType {Transfer, Adjustment, StockIn}

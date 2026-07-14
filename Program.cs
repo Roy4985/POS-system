@@ -5,4 +5,6 @@
 var manager = new InventoryManager();
 
 manager.AddProduct(p);
-manager.ListProducts();
+manager.FindProduct("Item0012");
+manager.RemoveProduct(p.ItemCode);
+manager.FindProduct("Item0012");

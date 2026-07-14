@@ -12,6 +12,7 @@ class Product
     public decimal CostPrice {get;set;}
     public decimal SellPrice {get;set;}
     public bool HasTVA {get;set;}
+    public bool IsActive {get; set;} = true;
 
     // Constructor
     public Product(string name, string barcode, string brand, string itemcode, decimal costp, decimal sellp, bool tva=true, string family="", string category="")
