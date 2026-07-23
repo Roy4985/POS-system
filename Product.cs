@@ -3,16 +3,18 @@ using System.ComponentModel;
 class Product
 {
     public Guid Id {get; private set;} = Guid.NewGuid(); // for automatic Ids
-    public string Name {get;set;}
-    public string Barcode {get;set;}
-    public string Brand {get;set;}
-    public string Family {get;set;}
-    public string Category {get;set;}
-    public string ItemCode {get;set;}
+    public string Name {get;set;} = null!;
+    public string Barcode {get;set;} = null!;
+    public string Brand {get;set;} = null!;
+    public string Family {get;set;} = null!;
+    public string Category {get;set;} = null!;
+    public string ItemCode {get;set;} = null!;
     public decimal CostPrice {get;set;}
     public decimal SellPrice {get;set;}
     public bool HasTVA {get;set;}
     public bool IsActive {get; set;} = true;
+
+    private Product() { }
 
     // Constructor
     public Product(string name, string barcode, string brand, string itemcode, decimal costp, decimal sellp, bool tva=true, string family="", string category="")

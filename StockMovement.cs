@@ -8,6 +8,8 @@ class StockMovement
     public int Quantity {get;private set;}
     public DateTime Timestamp {get;private set;} = DateTime.UtcNow;
 
+    private StockMovement() {}
+
     public StockMovement(Guid productid, Guid? fromlocid, Guid? tolocid, MovementType type, int qtty)
     {
         ProductId = productid;
