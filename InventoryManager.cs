@@ -1,16 +1,19 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 
 class InventoryManager
 {
-    public List<Product> Products {get;set;} = new();
-    public List<Location> Locations {get;set;} = new();
-    public Dictionary<(Guid, Guid), StockEntry> Stock {get;set;} = new(); // this is to be able to see which item is where and which row/column...
-    public List<StockMovement> Movements {get;set;}  = new(); //Movement history
+    private InventoryContext context;
+
+    public InventoryManager(InventoryContext ctx)
+    {
+        context = ctx;
+    }
 
     public void AddProduct(Product prod)
     {
-        Products.Add(prod);
-        System.Console.WriteLine($"{prod} Succesfully added to product list");
+        context.Products.Add(prod);
+        context.SaveChanges();
     }
 
     public void RemoveProduct(string itemcode)
@@ -22,6 +25,7 @@ class InventoryManager
         } else
         {
             prod.IsActive = false;
+            context.SaveChanges();
             System.Console.WriteLine($"{prod} was succesfully removed"); // TEMP       
         }
     }
@@ -35,10 +39,12 @@ class InventoryManager
     {
         System.Console.WriteLine($"{product.Name,-15}{product.Barcode,-15}{product.Brand,-15}{product.Family,-15}{product.Category,-15}{product.ItemCode,-15}{product.CostPrice,-15}{product.SellPrice,-15}{product.HasTVA,-15}");
     }
+
     public void ListProducts()
     {
+        var active_products = context.Products.Where(p => p.IsActive == true);
         PrintTitles();
-        foreach (Product product in Products)
+        foreach (Product product in active_products)
         {
             PrintProduct(product);
         }
@@ -46,13 +52,13 @@ class InventoryManager
 
     public void AddLocation(Location loc)
     {
-        Locations.Add(loc);
-        System.Console.WriteLine($"{loc.Name} Successfuly added to locations"); // TEMP
+        context.Locations.Add(loc);
+        context.SaveChanges();
     }
 
     public Product? FindProduct(string itemcode = "", string barcode = "")
     {
-        Product? prod = Products.FirstOrDefault(p => p.ItemCode == itemcode || p.Barcode == barcode);
+        Product? prod = context.Products.FirstOrDefault(p => p.ItemCode == itemcode || p.Barcode == barcode);
         if(prod == null)
         {
             System.Console.WriteLine("The product was not found"); // TEMP
@@ -65,25 +71,27 @@ class InventoryManager
     }
 
     public void AddStock(Guid productid, Guid locationid, int qtty, int? row = null, int? col = null)
-    {
-        var key = (productid, locationid);
-        if (Stock.ContainsKey(key)) // product is already in stock
+    {   
+        var exists = context.StockEntries.FirstOrDefault(s => s.ProductId == productid && s.LocationId == locationid);
+        if (exists != null) // product is already in stock
         {
-            Stock[key].Quantity += qtty;
+            exists.Quantity += qtty;
         } else // new product is being added in stock
         {
-            Stock[key] = new StockEntry(productid, locationid, qtty, row, col);
+            context.StockEntries.Add(new StockEntry(productid, locationid, qtty, row, col));      
         }
-    Movements.Add(new StockMovement(productid, null, locationid, MovementType.StockIn, qtty));
+
+        context.StockMovements.Add(new StockMovement(productid, null, locationid, MovementType.StockIn, qtty));
+        context.SaveChanges();
 
     }
 
     public int GetStock(Guid productid, Guid locationid)
     {
-        var key = (productid, locationid);
-        if (Stock.ContainsKey(key))
+        var exists = context.StockEntries.FirstOrDefault(s => s.ProductId == productid && s.LocationId == locationid);
+        if (exists != null)
         {
-            return Stock[key].Quantity;
+            return exists.Quantity;
         }
         return 0;
     }
@@ -95,22 +103,39 @@ class InventoryManager
 
         if(fromid == toid){return false;}
         
-        Product? found = Products.FirstOrDefault(p => p.Id == productid);
+        Product? found = context.Products.FirstOrDefault(p => p.Id == productid);
         if(found == null){return false;}
 
         int available_qtty = GetStock(productid, fromid);
         if (available_qtty < qtty){return false;}
-        // Guard clauses end
 
-        Stock[(productid,fromid)].Quantity -= qtty;
-        if (Stock.ContainsKey((productid, toid)))
+        using var transaction = context.Database.BeginTransaction();
+        try
         {
-            Stock[(productid,toid)].Quantity += qtty;
+            var init_stock = context.StockEntries.FirstOrDefault(s => s.ProductId == productid && s.LocationId == fromid);
+        if(init_stock != null)
+        {
+            init_stock.Quantity -= qtty;
+        }
+            
+        // Guard clauses end
+        var dest_stock = context.StockEntries.FirstOrDefault(s => s.ProductId == productid && s.LocationId == toid);
+        if (dest_stock != null) // product is already in stock
+        {
+            dest_stock.Quantity += qtty;
         } else
         {
-            Stock[(productid,toid)] = new StockEntry(productid, toid, qtty, row, col);
+            context.StockEntries.Add(new StockEntry(productid, toid, qtty, row, col));
         }
-        Movements.Add(new StockMovement(productid, fromid, toid, MovementType.Transfer, qtty));
+        context.StockMovements.Add(new StockMovement(productid, fromid, toid, MovementType.Transfer, qtty));
+        context.SaveChanges();
+        transaction.Commit();
         return true;
+        } catch
+        {
+            transaction.Rollback();
+            return false;
+        }
+        
     }
 }

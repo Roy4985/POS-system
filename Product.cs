@@ -17,7 +17,7 @@ class Product
     private Product() { }
 
     // Constructor
-    public Product(string name, string barcode, string brand, string itemcode, decimal costp, decimal sellp, bool tva=true, string family="", string category="")
+    public Product(string name, string barcode, string brand, string itemcode, decimal costp, decimal sellp,  string family, string category, bool tva=true)
     {
         Name = name;
         Barcode = barcode;
