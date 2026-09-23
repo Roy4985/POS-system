@@ -1,0 +1,8 @@
+# build output
+pos.exe
+*.o
+*.exe
+
+# editor / OS junk
+.vscode/
+.DS_Store
