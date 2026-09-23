@@ -1,8 +1,7 @@
 #include "catalog.h"
-#include <iostream>
 
 CatalogResult Catalog::addProduct(const Product& product) {
-    for(Product& pr : products){
+    for(const Product& pr : products){
         if(pr.sku == product.sku){
             return CatalogResult::AlreadyAvailable;
         }

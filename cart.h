@@ -4,6 +4,7 @@
 #include "product.h"
 
 enum class AddResult {Ok, InvalidQuantity, OutOfStock};
+enum class RemoveResult {Ok, InvalidQuantity, NotInCart};
 
 class Cart {
     public:
@@ -11,6 +12,8 @@ class Cart {
         std::int64_t total() const;
         int unitCount() const;
         bool isEmpty() const;
+        CartItem* findItem(const Product& product);
+        RemoveResult removeItem(const std::string& sku, int quantity);
 
     private:
         std::vector<CartItem> items;
