@@ -26,30 +26,36 @@ int main() {
     Catalog catalog = makeCatalog();
     Cart cart = makeCart(catalog);
 
-    Product milk{"123", "Milk", 200};
-    Product cofee{"345", "coffee", 300};
+    std::string path = "products.csv";
+    
+    FileOpening opening = catalog.loadFromFile(path);
 
-    CartItem* item1 = cart.findItem(cofee);
+    if (opening == FileOpening::Error) {
+        std::cout << "Could not open " << path << "\n";
+        return 1;
+    }
 
-    if(item1 == nullptr) {
-        std::cout << "Item Not found" << "\n";
+    std::optional<Product> found = catalog.findBySku("123");
+
+    if (found) {
+        std::cout << found->name << " " << formatMoney(found->price_cents) << "\n";
     } else {
-        std::cout << "The Item is " << item1->product.name << "\n";
-    }
+        std::cout << "Unknown SKU\n";
+    }  
 
-    RemoveResult result = cart.removeItem("345", 1);
+    // RemoveResult result = cart.removeItem("345", 1);
 
-    switch (result) {
-        case RemoveResult::Ok:
-            std::cout << "Removed\n";
-            break;
-        case RemoveResult::InvalidQuantity:
-            std::cout << "Quantity must be at least 1\n";
-            break;
-        case RemoveResult::NotInCart:
-            std::cout << "That item isn't in the cart\n";
-            break;
-    }
+    // switch (result) {
+    //     case RemoveResult::Ok:
+    //         std::cout << "Removed\n";
+    //         break;
+    //     case RemoveResult::InvalidQuantity:
+    //         std::cout << "Quantity must be at least 1\n";
+    //         break;
+    //     case RemoveResult::NotInCart:
+    //         std::cout << "That item isn't in the cart\n";
+    //         break;
+    // }
 
 
 

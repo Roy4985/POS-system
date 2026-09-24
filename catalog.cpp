@@ -1,4 +1,5 @@
 #include "catalog.h"
+#include <iostream>
 
 CatalogResult Catalog::addProduct(const Product& product) {
     if(products.contains(product.sku)){
@@ -15,4 +16,26 @@ std::optional<Product> Catalog::findBySku(const std::string& sku) const {
     } else {
         return i->second;
     }
+}
+
+FileOpening Catalog::loadFromFile(const std::string& path) {
+    std::ifstream file(path);
+    if(!file){
+        return FileOpening::Error;
+    }
+
+    std::string line;
+    while(std::getline(file, line)){
+        std::cout << "[" << line << "]\n";
+        std::istringstream ss(line);
+        std::string sku, name, priceText;
+
+        std::getline(ss, sku, ',');
+        std::getline(ss, name, ',');
+        std::getline(ss, priceText, ',');
+
+        std::int64_t price = std::stoll(priceText);
+        (void)addProduct(Product{sku, name, price});
+    }
+    return FileOpening::Ok;
 }

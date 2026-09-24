@@ -6,3 +6,7 @@ pos.exe
 # editor / OS junk
 .vscode/
 .DS_Store
+
+
+# .gitignore
+catalog-live.csv
