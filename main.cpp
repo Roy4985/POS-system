@@ -35,7 +35,7 @@ int main() {
         return 1;
     }
 
-    std::optional<Product> found = catalog.findBySku("123");
+    std::optional<Product> found = catalog.findBySku("555");
 
     if (found) {
         std::cout << found->name << " " << formatMoney(found->price_cents) << "\n";

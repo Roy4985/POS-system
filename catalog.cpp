@@ -34,7 +34,18 @@ FileOpening Catalog::loadFromFile(const std::string& path) {
         std::getline(ss, name, ',');
         std::getline(ss, priceText, ',');
 
-        std::int64_t price = std::stoll(priceText);
+        std::int64_t price = 0;
+
+        try {
+            price = std::stoll(priceText);
+        } catch (const std::exception& e) {
+            // bad row — skip it
+            std::cout << "Skipping bad row: [" << line << "] — " << e.what() << "\n";
+            continue;
+        }
+
+        price = std::stoll(priceText);
+
         (void)addProduct(Product{sku, name, price});
     }
     return FileOpening::Ok;
