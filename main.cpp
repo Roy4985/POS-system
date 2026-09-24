@@ -27,10 +27,15 @@ int main() {
     Cart cart = makeCart(catalog);
 
     Product milk{"123", "Milk", 200};
+    Product cofee{"345", "coffee", 300};
 
-    CartItem* item1 = cart.findItem(milk);
+    CartItem* item1 = cart.findItem(cofee);
 
-    std::cout << "The Item is " << item1->product.name << "\n";
+    if(item1 == nullptr) {
+        std::cout << "Item Not found" << "\n";
+    } else {
+        std::cout << "The Item is " << item1->product.name << "\n";
+    }
 
     RemoveResult result = cart.removeItem("345", 1);
 

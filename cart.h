@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include <string>
 #include "product.h"
 
 enum class AddResult {Ok, InvalidQuantity, OutOfStock};
